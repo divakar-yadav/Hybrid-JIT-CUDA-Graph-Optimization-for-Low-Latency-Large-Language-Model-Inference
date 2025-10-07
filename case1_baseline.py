@@ -123,10 +123,9 @@ def run_baseline_benchmark(
         
         latencies = []
         for iteration in range(ttft_iterations):
-            # Use MMLU prompt for realistic benchmarking
-            from mmlu_prompts import get_mmlu_prompt, tokenize_prompt
-            prompt_text = get_mmlu_prompt(prompt_len, iteration)
-            prompt = tokenize_prompt(baseline_model.tokenizer, prompt_text, prompt_len)
+            # Use consistent benchmark text for all cases
+            from prompt_generator import get_benchmark_tokens
+            prompt = get_benchmark_tokens(baseline_model.tokenizer, prompt_len)
             
             try:
                 next_token_id, latency_ms = baseline_model.baseline_inference(prompt_len, prompt)
@@ -171,10 +170,9 @@ def run_baseline_benchmark(
         
         latencies = []
         for iteration in range(p99_iterations):
-            # Use MMLU prompt for realistic benchmarking
-            from mmlu_prompts import get_mmlu_prompt, tokenize_prompt
-            prompt_text = get_mmlu_prompt(prompt_len, iteration)
-            prompt = tokenize_prompt(baseline_model.tokenizer, prompt_text, prompt_len)
+            # Use consistent benchmark text for all cases
+            from prompt_generator import get_benchmark_tokens
+            prompt = get_benchmark_tokens(baseline_model.tokenizer, prompt_len)
             
             try:
                 next_token_id, latency_ms = baseline_model.baseline_inference(prompt_len, prompt)

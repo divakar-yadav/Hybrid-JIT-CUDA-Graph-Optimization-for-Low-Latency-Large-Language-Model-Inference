@@ -69,9 +69,9 @@ class TensorRTLLMModel:
             
             # Warmup the model
             logger.info("Warming up TensorRT-LLM model...")
-            dummy_text = "What is machine learning?"
-            dummy_tokens = self.tokenizer.encode(dummy_text, add_special_tokens=True, return_tensors="pt")
-            dummy_input = dummy_tokens.to(self.device)
+            from prompt_generator import get_benchmark_tokens
+            warmup_tokens = get_benchmark_tokens(self.tokenizer, 10)
+            dummy_input = torch.tensor([warmup_tokens], device=self.device, dtype=torch.long)
             with torch.no_grad():
                 _ = self.model(dummy_input)
             
@@ -169,10 +169,9 @@ def run_case5_benchmark(
         ttft_latencies = []
         
         for i in range(ttft_iterations):
-            # Use MMLU prompt for realistic benchmarking
-            from mmlu_prompts import get_mmlu_prompt, tokenize_prompt
-            prompt_text = get_mmlu_prompt(seq_len, i)
-            input_tokens = tokenize_prompt(tensorrt_model.tokenizer, prompt_text, seq_len)
+            # Use consistent benchmark text for all cases
+            from prompt_generator import get_benchmark_tokens
+            input_tokens = get_benchmark_tokens(tensorrt_model.tokenizer, seq_len)
             
             try:
                 _, latency_ms = tensorrt_model.tensorrt_llm_inference(seq_len, input_tokens)
@@ -223,10 +222,9 @@ def run_case5_benchmark(
             if i % 20 == 0 and i > 0:
                 logger.info(f"  Completed {i}/{p99_iterations} iterations...")
             
-            # Use MMLU prompt for realistic benchmarking
-            from mmlu_prompts import get_mmlu_prompt, tokenize_prompt
-            prompt_text = get_mmlu_prompt(seq_len, i)
-            input_tokens = tokenize_prompt(tensorrt_model.tokenizer, prompt_text, seq_len)
+            # Use consistent benchmark text for all cases
+            from prompt_generator import get_benchmark_tokens
+            input_tokens = get_benchmark_tokens(tensorrt_model.tokenizer, seq_len)
             
             try:
                 _, latency_ms = tensorrt_model.tensorrt_llm_inference(seq_len, input_tokens)
