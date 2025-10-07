@@ -366,7 +366,7 @@ accelerate>=0.20.0
 ```bibtex
 @article{yadav2024hybrid,
   title={Hybrid JIT-CUDA Graph Optimization for Low-Latency Large Language Model Inference},
-  author={Yadav, Divakar},
+  author={Yadav, Divakar},{Zhao, Tian},
   journal={arXiv preprint},
   year={2024}
 }
