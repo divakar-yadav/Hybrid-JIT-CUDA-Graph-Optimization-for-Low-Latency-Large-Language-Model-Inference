@@ -1,19 +1,19 @@
 # Hybrid JIT-CUDA Graph Optimization for Low-Latency Large Language Model Inference
 
-## 🎯 Research Overview
+## Research Overview
 
 This repository contains the implementation and benchmarking results for a novel hybrid optimization approach that combines **Just-In-Time (JIT) compilation** with **CUDA Graphs** to achieve superior performance in Large Language Model (LLM) inference.
 
-### 🔬 Research Question
+### Research Question
 **Why does JIT work well with CUDA Graphs for LLM inference, and how can we leverage their synergy for optimal performance?**
 
-### 🏆 Key Findings
+### Key Findings
 - **JIT+CUDA Graph hybrid approach achieves 4.48× speedup** over baseline HuggingFace Transformers
 - **JIT+CUDA Graph outperforms TensorRT-LLM by 1.75×** in TTFT (Time-To-First-Token)
 - **CUDA Graphs alone fail** due to dynamic operations in LLM inference
 - **JIT compilation enables CUDA Graph usage** by handling dynamic operations
 
-## 🏗️ Architecture
+## Architecture
 
 ### Hybrid Optimization Strategy
 1. **CUDA Graphs**: Capture and replay static operations (model forward pass)
@@ -34,9 +34,9 @@ This repository contains the implementation and benchmarking results for a novel
          CUDA Graph              JIT Compilation
 ```
 
-## 📊 Experimental Results
+## Experimental Results
 
-### 🚀 TTFT (Time-To-First-Token) Performance
+### TTFT (Time-To-First-Token) Performance
 
 | Prompt Length | Baseline (ms) | CUDA Graph (ms) | JIT-Only (ms) | JIT+CUDA (ms) | TensorRT-LLM (ms) | Winner |
 |---------------|---------------|----------------|---------------|---------------|-------------------|---------|
@@ -51,7 +51,7 @@ This repository contains the implementation and benchmarking results for a novel
 | 400 tokens | 23.74 | 149.14 | 74.17 | **20.87** | 23.53 | JIT+CUDA |
 | **AVERAGE** | **27.84** | **121.23** | **76.04** | **15.57** | **22.07** | **JIT+CUDA** |
 
-### 📈 P99 (99th Percentile Latency) Performance
+### P99 (99th Percentile Latency) Performance
 
 | Prompt Length | Baseline P99 (ms) | CUDA Graph P99 (ms) | JIT-Only P99 (ms) | JIT+CUDA P99 (ms) | TensorRT-LLM P99 (ms) | Winner |
 |---------------|-------------------|-------------------|-------------------|-------------------|----------------------|---------|
@@ -66,17 +66,17 @@ This repository contains the implementation and benchmarking results for a novel
 | 400 tokens | 23.08 | 51.56 | 75.70 | **21.20** | 22.21 | JIT+CUDA |
 | **AVERAGE** | **18.96** | **17.05** | **59.25** | **14.14** | **17.73** | **JIT+CUDA** |
 
-### 🏆 Performance Summary
+### Performance Summary
 
 | Approach | TTFT Avg | P99 Avg | Best Use Case |
 |----------|----------|---------|---------------|
-| **JIT+CUDA** | **15.57ms** | **14.14ms** | **🏆 Overall best performance** |
+| **JIT+CUDA** | **15.57ms** | **14.14ms** | **Overall best performance** |
 | **TensorRT-LLM** | **22.07ms** | **17.73ms** | **Production alternative** |
 | CUDA Graph | 121.23ms | 17.05ms | P99 optimization |
 | JIT-Only | 76.04ms | 59.25ms | Consistent performance |
 | Baseline | 27.84ms | 18.96ms | Reference baseline |
 
-## 🧪 Experimental Setup
+## Experimental Setup
 
 ### 5 Benchmark Cases
 
@@ -115,7 +115,7 @@ This repository contains the implementation and benchmarking results for a novel
 - **Device**: NVIDIA GPU with CUDA support
 - **Precision**: FP16
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 ```bash
@@ -163,7 +163,7 @@ python case3_jit_only.py --ttft-iterations 5 --p99-iterations 100
 python case5_tensorrt_llm.py --ttft-iterations 5 --p99-iterations 100
 ```
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```
 ├── README.md                           # This file
@@ -202,7 +202,7 @@ python case5_tensorrt_llm.py --ttft-iterations 5 --p99-iterations 100
 └── venv/                              # Virtual environment
 ```
 
-## 🔧 Technical Implementation
+## Technical Implementation
 
 ### JIT Compilation for Dynamic Operations
 ```python
@@ -271,7 +271,7 @@ def _create_cuda_graph(self, seq_len: int) -> bool:
         
         return True
     except Exception as e:
-        logger.warning(f"❌ CUDA graph failed for seq_len {seq_len}: {e}")
+        logger.warning(f"CUDA graph failed for seq_len {seq_len}: {e}")
         return False
 ```
 
@@ -287,7 +287,7 @@ class RollingCUDAOptimizedModel:
     
     def _precapture_50_graphs(self):
         """Pre-capture 50 CUDA graphs for common sequence lengths"""
-        logger.info(f"🚀 Pre-capturing 50 CUDA graphs (1 to 50)")
+        logger.info(f"Pre-capturing 50 CUDA graphs (1 to 50)")
         
         successful_graphs = 0
         for seq_len in range(1, 51):
@@ -297,17 +297,17 @@ class RollingCUDAOptimizedModel:
             else:
                 break
         
-        logger.info(f"✅ Pre-capture complete: {successful_graphs} graphs ready")
+        logger.info(f"Pre-capture complete: {successful_graphs} graphs ready")
     
     def _cleanup_old_graphs(self):
         """Clean up old graphs to maintain memory limit"""
         while len(self.cuda_graphs) >= self.max_graphs_in_memory:
             seq_len, graph_data = self.cuda_graphs.popitem(last=False)  # Remove LRU
-            logger.info(f"🗑️ Deleted CUDA graph for seq_len {seq_len}")
+            logger.info(f"Deleted CUDA graph for seq_len {seq_len}")
             self.total_graphs_deleted += 1
 ```
 
-## 🔬 Why JIT + CUDA Graph Synergy Works
+## Why JIT + CUDA Graph Synergy Works
 
 ### The Problem with Pure CUDA Graphs
 CUDA Graphs require **completely static operations** with:
@@ -335,7 +335,7 @@ JIT compilation optimizes dynamic operations by:
 3. **Rolling management** prevents memory exhaustion
 4. **IPC architecture** enables scalability
 
-## 📈 Performance Analysis
+## Performance Analysis
 
 ### Speedup Analysis
 - **JIT+CUDA vs Baseline**: 4.48× (TTFT) and 1.42× (P99)
@@ -350,7 +350,7 @@ JIT compilation optimizes dynamic operations by:
 4. **Memory efficiency**: Rolling management prevents GPU memory exhaustion
 5. **Consistent advantage**: JIT+CUDA faster across all sequence lengths
 
-## 🛠️ Dependencies
+## Dependencies
 
 ```txt
 torch>=2.0.0
@@ -361,7 +361,7 @@ pandas>=1.3.0
 accelerate>=0.20.0
 ```
 
-## 📝 Citation
+## Citation
 
 ```bibtex
 @article{yadav2024hybrid,
@@ -372,7 +372,7 @@ accelerate>=0.20.0
 }
 ```
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch
@@ -380,11 +380,11 @@ accelerate>=0.20.0
 4. Add tests if applicable
 5. Submit a pull request
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - NVIDIA for CUDA and TensorRT-LLM
 - HuggingFace for Transformers library
@@ -393,4 +393,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
-**🎯 Research Conclusion**: The JIT+CUDA Graph hybrid approach represents a novel and effective solution for optimizing LLM inference, achieving superior performance through the synergistic combination of static graph optimization and dynamic operation compilation.
+**Research Conclusion**: The JIT+CUDA Graph hybrid approach represents a novel and effective solution for optimizing LLM inference, achieving superior performance through the synergistic combination of static graph optimization and dynamic operation compilation.
