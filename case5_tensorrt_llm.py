@@ -68,8 +68,10 @@ class TensorRTLLMModel:
             self._apply_tensorrt_optimizations()
             
             # Warmup the model
-            logger.info("🔥 Warming up TensorRT-LLM model...")
-            dummy_input = torch.randint(0, 1000, (1, 10), device=self.device, dtype=torch.long)
+            logger.info("Warming up TensorRT-LLM model...")
+            dummy_text = "What is machine learning?"
+            dummy_tokens = self.tokenizer.encode(dummy_text, add_special_tokens=True, return_tensors="pt")
+            dummy_input = dummy_tokens.to(self.device)
             with torch.no_grad():
                 _ = self.model(dummy_input)
             
@@ -138,7 +140,6 @@ def run_case5_benchmark(
     prompt_lengths: List[int] = [10, 50, 100, 150, 200, 250, 300, 350, 400],
     ttft_iterations: int = 5,
     p99_iterations: int = 100,
-    vocab_size: int = 32000
 ):
     """Run Case 5 benchmark for TTFT and P99"""
     
@@ -168,8 +169,10 @@ def run_case5_benchmark(
         ttft_latencies = []
         
         for i in range(ttft_iterations):
-            # Generate random input tokens
-            input_tokens = np.random.randint(0, vocab_size, seq_len).tolist()
+            # Use MMLU prompt for realistic benchmarking
+            from mmlu_prompts import get_mmlu_prompt, tokenize_prompt
+            prompt_text = get_mmlu_prompt(seq_len, i)
+            input_tokens = tokenize_prompt(tensorrt_model.tokenizer, prompt_text, seq_len)
             
             try:
                 _, latency_ms = tensorrt_model.tensorrt_llm_inference(seq_len, input_tokens)
@@ -220,8 +223,10 @@ def run_case5_benchmark(
             if i % 20 == 0 and i > 0:
                 logger.info(f"  Completed {i}/{p99_iterations} iterations...")
             
-            # Generate random input tokens
-            input_tokens = np.random.randint(0, vocab_size, seq_len).tolist()
+            # Use MMLU prompt for realistic benchmarking
+            from mmlu_prompts import get_mmlu_prompt, tokenize_prompt
+            prompt_text = get_mmlu_prompt(seq_len, i)
+            input_tokens = tokenize_prompt(tensorrt_model.tokenizer, prompt_text, seq_len)
             
             try:
                 _, latency_ms = tensorrt_model.tensorrt_llm_inference(seq_len, input_tokens)
@@ -287,7 +292,6 @@ if __name__ == "__main__":
     parser.add_argument("--model", type=str, default="meta-llama/Llama-2-7b-hf", help="Model name")
     parser.add_argument("--ttft-iterations", type=int, default=5, help="Number of TTFT iterations")
     parser.add_argument("--p99-iterations", type=int, default=100, help="Number of P99 iterations")
-    parser.add_argument("--vocab-size", type=int, default=32000, help="Vocabulary size")
     
     args = parser.parse_args()
     
@@ -295,5 +299,4 @@ if __name__ == "__main__":
         model_name=args.model,
         ttft_iterations=args.ttft_iterations,
         p99_iterations=args.p99_iterations,
-        vocab_size=args.vocab_size
     )

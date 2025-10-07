@@ -99,7 +99,6 @@ def run_baseline_benchmark(
     prompt_lengths: List[int] = [10, 50, 100, 150, 200, 250, 300, 350, 400],
     ttft_iterations: int = 5,
     p99_iterations: int = 100,
-    vocab_size: int = 32000
 ):
     """Run baseline benchmark for TTFT and P99"""
     
@@ -124,9 +123,10 @@ def run_baseline_benchmark(
         
         latencies = []
         for iteration in range(ttft_iterations):
-            # Generate random prompt (same seeds for consistency)
-            np.random.seed(42 + iteration)
-            prompt = list(np.random.randint(1, vocab_size, prompt_len))
+            # Use MMLU prompt for realistic benchmarking
+            from mmlu_prompts import get_mmlu_prompt, tokenize_prompt
+            prompt_text = get_mmlu_prompt(prompt_len, iteration)
+            prompt = tokenize_prompt(baseline_model.tokenizer, prompt_text, prompt_len)
             
             try:
                 next_token_id, latency_ms = baseline_model.baseline_inference(prompt_len, prompt)
@@ -171,9 +171,10 @@ def run_baseline_benchmark(
         
         latencies = []
         for iteration in range(p99_iterations):
-            # Generate random prompt (same seeds for consistency)
-            np.random.seed(42 + iteration)
-            prompt = list(np.random.randint(1, vocab_size, prompt_len))
+            # Use MMLU prompt for realistic benchmarking
+            from mmlu_prompts import get_mmlu_prompt, tokenize_prompt
+            prompt_text = get_mmlu_prompt(prompt_len, iteration)
+            prompt = tokenize_prompt(baseline_model.tokenizer, prompt_text, prompt_len)
             
             try:
                 next_token_id, latency_ms = baseline_model.baseline_inference(prompt_len, prompt)
